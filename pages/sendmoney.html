@@ -19,7 +19,7 @@
                 <label for="searchContact">Buscar en la agenda de transferencias:</label>
                 <input type="text" class="form-control" id="searchContact" placeholder="Buscar contacto">
             </div>
-            <button type="submit" class="btn btn-primary mx-auto d-block top-space">Agregar nuevo contacto</button>
+            <button type="button" id="btnAddContact" class="btn btn-primary mx-auto d-block top-space">Agregar nuevo contacto</button>
             <h3 class="text-center top-space">Contactos</h3>
             <ul id="contactList" class="list-group">
                 <li class="list-group-item">
@@ -35,9 +35,11 @@
                     </div>
                 </li>
             </ul>
-            <button type="submit" class="btn btn-primary col-6 mx-auto d-block top-space">Enviar dinero</button>
+            <button type="button" id="btnSendMoneyContact" class="btn btn-primary col-6 mx-auto d-block top-space" disabled>Enviar dinero</button>
         </form>
         <a href="menu.html" class="btn btn-secondary col-6 mx-auto d-block top-space">Volver al Menú</a>
     </div>
+
+    <script src="../js/menu.js"></script>
 </body>
 </html>
