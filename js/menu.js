@@ -10,7 +10,9 @@ let btnAddContact = document.getElementById("btnAddContact")
 let contactList = document.getElementById("contactList")
 
 let btnSendMoneyContact = document.getElementById("btnSendMoneyContact")
-let selectedContactIndex = null
+let selectedContactElement = null
+
+let transactionsList = document.getElementById("transactionsList")
 
 if(btnDeposit) {
     btnDeposit.addEventListener("click", function (e) {
@@ -52,6 +54,16 @@ if(btnDepositMoney) {
         total += amount
 
         localStorage.setItem("totalMoney", total)
+
+        let transactions = JSON.parse(localStorage.getItem("transactions")) || []
+
+        transactions.unshift({
+            type: "deposit",
+            amount: amount
+        })
+
+        localStorage.setItem("transactions", JSON.stringify(transactions))
+
         depositAmount.value = ""
         alert("Dinero depositado")
     })
@@ -95,8 +107,6 @@ if(btnAddContact && contactList) {
 function renderContacts() {
     if(!contactList) return
 
-    contactList.innerHTML = ""
-
     let contacts = JSON.parse(localStorage.getItem("contacts")) || []
 
     contacts.forEach((contact, index) => {
@@ -108,6 +118,15 @@ function renderContacts() {
                 <span class="contact-details">NDC: ${contact.ndc}, Alias: ${contact.alias}, Banco: ${contact.bank}</span>
             </div>
         `
+        li.addEventListener("click", () => {
+            document.querySelectorAll("#contactList li")
+                .forEach(item => item.classList.remove("active"))
+
+            li.classList.add("active")
+            selectedContactElement = li
+            btnSendMoneyContact.disabled = false
+        })
+
         contactList.appendChild(li)
     })
 }
@@ -164,9 +183,71 @@ if(btnSendMoneyContact) {
         total -= amount
         localStorage.setItem("totalMoney", total)
 
+        let transactions = JSON.parse(localStorage.getItem("transactions")) || []
+
+        transactions.unshift({
+            type: "send",
+            amount: amount
+        })
+
+        localStorage.setItem("transactions", JSON.stringify(transactions))
+
         let contactName = selectedContactElement
             .querySelector(".contact-name")?.innerText || "el contacto"
 
         alert(`Transferencia realizada a ${contactName}`)
+    })
+}
+
+if(transactionsList && !localStorage.getItem("transactions")) {
+
+    let initialTransactions = []
+
+    transactionsList.querySelectorAll("li").forEach(li => {
+        let text = li.innerText
+        let amountMatch = text.match(/\$([\d.,]+)/)
+
+        if(!amountMatch) return
+
+        let amount = parseInt(amountMatch[1].replace(".", "").replace(",", ""))
+
+        if(li.classList.contains("bg-success")) {
+            initialTransactions.push({
+                type: "deposit",
+                amount: amount
+            })
+        }
+
+        if(li.classList.contains("bg-danger")) {
+            initialTransactions.push({
+                type: "send",
+                amount: amount
+            })
+        }
+    })
+
+    localStorage.setItem("transactions", JSON.stringify(initialTransactions))
+}
+
+if(transactionsList) {
+    let transactions = JSON.parse(localStorage.getItem("transactions")) || []
+
+    transactionsList.innerHTML = ""
+
+    transactions.forEach(tx => {
+        let li = document.createElement("li")
+        li.classList.add("list-group-item", "text-white")
+
+        if(tx.type === "deposit") {
+            li.classList.add("bg-success")
+            li.innerText = `Depósito - $${tx.amount}`
+        }
+
+        if(tx.type === "send") {
+            li.classList.add("bg-danger")
+            li.innerText = `Transferencia enviada - $${tx.amount}`
+        }
+
+        transactionsList.appendChild(li)
     })
 }
